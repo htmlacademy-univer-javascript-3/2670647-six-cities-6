@@ -8,11 +8,10 @@ import { RootState } from '../../store';
 
 const Offer = () => {
   const { id } = useParams();
-  const offerId = Number(id);
+  const offerId = id;
   const offers = useSelector((s: RootState) => s.app.offers);
   const offer = offers.find((p) => p.id === offerId);
 
-  // For now create a small static reviews array for the offer
   const reviews = [
     {
       id: 1,
@@ -30,7 +29,6 @@ const Offer = () => {
     },
   ];
 
-  // Nearby offers: pick up to 3 offers from places excluding current
   const nearby = offers.filter((p) => p.id !== offerId).slice(0, 3);
 
   return (

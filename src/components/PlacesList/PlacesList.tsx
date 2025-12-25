@@ -2,25 +2,26 @@ import React, { useState } from 'react';
 import PlaceCard from '../PlaceCard/PlaceCard';
 
 type Place = {
-  id: number;
+  id: string;
   title: string;
   type: string;
   price: number;
   rating: number;
-  image: string;
+  previewImage?: string;
+  image?: string;
   isPremium?: boolean;
-  isBookmarked?: boolean;
+  isFavorite?: boolean;
 };
 
 type Props = {
   places: Place[];
-  onActiveChange?: (id: number | null) => void;
+  onActiveChange?: (id: string | null) => void;
 };
 
 const PlacesList: React.FC<Props> = ({ places, onActiveChange }) => {
-  const [activeId, setActiveId] = useState<number | null>(null);
+  const [activeId, setActiveId] = useState<string | null>(null);
 
-  const handleEnter = (id: number) => {
+  const handleEnter = (id: string) => {
     setActiveId(id);
     onActiveChange?.(id);
   };

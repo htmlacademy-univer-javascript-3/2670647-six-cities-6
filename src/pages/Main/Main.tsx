@@ -1,23 +1,30 @@
 import Header from '../../components/Header';
-// Tabs removed — city selection is handled by CitiesList
 import PlacesList from '../../components/PlacesList/PlacesList';
 import Map from '../../components/Map/Map';
 import { useSelector } from 'react-redux';
+import { useDispatch } from 'react-redux';
 import { RootState } from '../../store';
 import CitiesList from '../../components/CitiesList/CitiesList';
 import SortOptions, {
   SortType,
 } from '../../components/SortOptions/SortOptions';
 import { useState, useMemo } from 'react';
+import Spinner from '../../components/Spinner/Spinner';
+import Notification from '../../components/Notification/Notification';
+import { setError } from '../../store/reducer';
 
 const Main = () => {
   const offers = useSelector((s: RootState) => s.app.offers);
   const activeCity = useSelector((s: RootState) => s.app.activeCity);
-  const [activeId, setActiveId] = useState<number | null>(null);
+  const loading = useSelector((s: RootState) => s.app.loading);
+  const error = useSelector((s: RootState) => s.app.error);
+  const [activeId, setActiveId] = useState<string | null>(null);
   const [sortType, setSortType] = useState<SortType>('Popular');
+  const dispatch = useDispatch();
+  const [dismissed, setDismissed] = useState(false);
 
   const places = useMemo(() => {
-    const filtered = offers.filter((p: any) => p.city?.name === activeCity);
+    const filtered = offers.filter((p) => p.city?.name === activeCity);
     if (sortType === 'Popular') {
       return filtered;
     }
@@ -38,6 +45,17 @@ const Main = () => {
         <h1 className="visually-hidden">Cities</h1>
         <CitiesList currentCity={activeCity} />
 
+        {error && !dismissed && (
+          <Notification
+            message={error}
+            duration={2500}
+            onClose={() => {
+              setDismissed(true);
+              dispatch(setError(null));
+            }}
+          />
+        )}
+
         <div className="cities">
           <div className="cities__places-container container">
             <section className="cities__places places">
@@ -47,7 +65,11 @@ const Main = () => {
               </b>
               <SortOptions value={sortType} onChange={setSortType} />
 
-              <PlacesList places={places} onActiveChange={setActiveId} />
+              {loading ? (
+                <Spinner />
+              ) : (
+                <PlacesList places={places} onActiveChange={setActiveId} />
+              )}
             </section>
             <div className="cities__right-section">
               <Map

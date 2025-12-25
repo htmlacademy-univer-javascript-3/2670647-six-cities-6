@@ -1,17 +1,17 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { App } from './App';
-import offers from './mocks/offers';
+import { fetchOffers } from './store/reducer';
 import { Provider } from 'react-redux';
 import store from './store';
-import { setOffers } from './store/reducer';
 
-const root = ReactDOM.createRoot(
-  document.getElementById('root') as HTMLElement
-);
+const rootElement = document.getElementById('root');
+if (!rootElement) {
+  throw new Error('Root element not found');
+}
+const root = ReactDOM.createRoot(rootElement);
 
-// populate store with test offers
-store.dispatch(setOffers(offers));
+store.dispatch(fetchOffers());
 
 root.render(
   <React.StrictMode>
