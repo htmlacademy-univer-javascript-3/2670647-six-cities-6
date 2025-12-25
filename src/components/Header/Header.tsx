@@ -1,12 +1,15 @@
 import { Link } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
-import { RootState } from '../../store';
-import { signOut } from '../../store/reducer';
+import { RootState, AppDispatch } from '../../store';
+import { logout } from '../../store/reducer';
 
 const Header = () => {
   const status = useSelector((s: RootState) => s.app.authorizationStatus);
   const email = useSelector((s: RootState) => s.app.userEmail);
-  const dispatch = useDispatch();
+  const favoritesCount = useSelector(
+    (s: RootState) => s.app.offers.filter((o) => o.isFavorite).length
+  );
+  const dispatch = useDispatch<AppDispatch>();
 
   return (
     <header className="header">
@@ -33,13 +36,15 @@ const Header = () => {
                   <li className="header__nav-item user">
                     <Link
                       className="header__nav-link header__nav-link--profile"
-                      to="#"
+                      to="/favorites"
                     >
                       <div className="header__avatar-wrapper user__avatar-wrapper"></div>
                       <span className="header__user-name user__name">
                         {email}
                       </span>
-                      <span className="header__favorite-count">3</span>
+                      <span className="header__favorite-count">
+                        {favoritesCount}
+                      </span>
                     </Link>
                   </li>
                   <li className="header__nav-item">
@@ -48,7 +53,7 @@ const Header = () => {
                       to="#"
                       onClick={(e) => {
                         e.preventDefault();
-                        dispatch(signOut());
+                        void dispatch(logout());
                       }}
                     >
                       <span className="header__signout">Sign out</span>

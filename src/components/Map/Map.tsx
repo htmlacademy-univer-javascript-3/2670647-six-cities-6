@@ -18,7 +18,7 @@ type Props = {
 
 const Map: React.FC<Props> = ({
   places,
-  cityName = 'Amsterdam',
+  cityName,
   containerClassName = 'cities__map map',
   height,
   activeOfferId,
