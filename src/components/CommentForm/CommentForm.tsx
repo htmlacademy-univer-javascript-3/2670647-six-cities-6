@@ -6,9 +6,7 @@ const CommentForm: React.FC = () => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // For now we just log the values. In future this will be sent to the server.
-    // eslint-disable-next-line no-console
-    console.log('submit review', { rating, review });
+
     setReview('');
     setRating(null);
   };

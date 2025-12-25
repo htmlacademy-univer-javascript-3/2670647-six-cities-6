@@ -2,14 +2,14 @@ import React, { useEffect } from 'react';
 
 type Props = {
   message: string;
-  duration?: number; // milliseconds
+  duration?: number;
   onClose?: () => void;
 };
 
 const Notification = ({ message, duration = 2500, onClose }: Props) => {
   useEffect(() => {
     const id = setTimeout(() => {
-      onClose && onClose();
+      onClose?.();
     }, duration);
     return () => clearTimeout(id);
   }, [duration, onClose]);

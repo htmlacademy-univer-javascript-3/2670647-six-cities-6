@@ -1,17 +1,20 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { AxiosInstance } from 'axios';
+import type { AppThunk } from './index';
 
-export type Place = {
+type Place = {
   id: string;
   title: string;
   type: string;
   price: number;
   rating: number;
   previewImage?: string;
-  isPremium?: boolean;
   isFavorite?: boolean;
+  image?: string;
+  isPremium?: boolean;
+  description?: string;
   city?: { name: string; location: { latitude: number; longitude: number } };
   location?: { latitude: number; longitude: number };
-  description?: string;
 };
 
 type State = {
@@ -22,7 +25,6 @@ type State = {
 };
 
 const initialState: State = {
-  // default city per task: Paris
   activeCity: 'Paris',
   offers: [],
   loading: false,
@@ -48,42 +50,33 @@ const slice = createSlice({
   },
 });
 
-export const { setCity, setOffers, setLoading } = slice.actions;
+export const { setCity, setOffers, setLoading, setError } = slice.actions;
 
-// include setError in exports
-export const { setError } = slice.actions as any;
-
-// Thunk to fetch offers from server
 export const fetchOffers =
-  () => async (dispatch: any, _getState: any, api: any) => {
-    dispatch(setLoading(true));
-    dispatch(setError(null));
-    try {
-      const response = await api.get('/offers');
-      dispatch(setOffers(response.data));
-    } catch (err: any) {
-      // Log full error details for debugging (not shown to user)
-      // eslint-disable-next-line no-console
-      console.error('fetchOffers error:', err);
+  (): AppThunk<Promise<void>> =>
+    async (dispatch, _getState, api: AxiosInstance): Promise<void> => {
+      dispatch(setLoading(true));
+      dispatch(setError(null));
+      try {
+        const response = await api.get('/offers');
+        dispatch(setOffers(response.data as Place[]));
+      } catch (errUnknown) {
+        let userMessage = 'Server is unavailable. Please try again later.';
 
-      // Compose a generic user-friendly message (do not expose internal error text)
-      let userMessage = 'Server is unavailable. Please try again later.';
+        const err = errUnknown as { response?: { status?: number } };
+        const status = err.response?.status ?? null;
+        if (status === 401) {
+          userMessage = 'Authorization required. Please sign in.';
+        } else if (status === 403) {
+          userMessage = 'Access denied.';
+        } else if (status === 404) {
+          userMessage = 'Requested data not found on the server.';
+        }
 
-      // Optionally refine by HTTP status (kept generic per specification)
-      const status = err?.response?.status;
-      if (status === 401) {
-        userMessage = 'Authorization required. Please sign in.';
-      } else if (status === 403) {
-        userMessage = 'Access denied.';
-      } else if (status === 404) {
-        // Keep message generic instead of showing raw "404"
-        userMessage = 'Requested data not found on the server.';
+        dispatch(setError(userMessage));
+      } finally {
+        dispatch(setLoading(false));
       }
-
-      dispatch(setError(userMessage));
-    } finally {
-      dispatch(setLoading(false));
-    }
-  };
+    };
 
 export default slice.reducer;

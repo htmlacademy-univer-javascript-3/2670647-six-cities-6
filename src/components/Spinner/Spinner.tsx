@@ -15,7 +15,11 @@ const Spinner: React.FC = () => (
         animation: 'spinner-pulse 1s infinite',
       }}
     />
-    <style>{`@keyframes spinner-pulse { 0% { transform: scale(1); opacity: 1 } 50% { transform: scale(1.3); opacity: 0.7 } 100% { transform: scale(1); opacity: 1 } }`}</style>
+    <style>
+      {
+        '@keyframes spinner-pulse { 0% { transform: scale(1); opacity: 1 } 50% { transform: scale(1.3); opacity: 0.7 } 100% { transform: scale(1); opacity: 1 } }'
+      }
+    </style>
   </div>
 );
 

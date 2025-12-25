@@ -12,7 +12,6 @@ type Props = {
   places: Place[];
   cityName?: string;
   containerClassName?: string;
-  // height can be a number (px) or string (e.g. '400px', '50%')
   height?: number | string;
   activeOfferId?: string | null;
 };
@@ -37,7 +36,6 @@ const Map: React.FC<Props> = ({
       return;
     }
 
-    // initialize map only once
     if (!leafletMap.current) {
       leafletMap.current = L.map(mapRef.current, {
         center: [52.38333, 4.9],
@@ -55,7 +53,6 @@ const Map: React.FC<Props> = ({
     if (!map) {
       return;
     }
-    // Remove existing markers layer if any (stored in ref)
     const existing = offersLayerRef.current;
     if (existing) {
       map.removeLayer(existing);
@@ -64,7 +61,6 @@ const Map: React.FC<Props> = ({
 
     const markers = L.layerGroup();
 
-    // create icons once
     if (!defaultIconRef.current) {
       defaultIconRef.current = L.icon({
         iconUrl: '/img/pin.svg',
@@ -80,7 +76,6 @@ const Map: React.FC<Props> = ({
       });
     }
 
-    // initialize markers map for this update
     markersMapRef.current = {};
 
     places
@@ -91,11 +86,6 @@ const Map: React.FC<Props> = ({
         const lng = p.location?.longitude ?? p.city?.location?.longitude;
         // skip invalid coordinates
         if (typeof lat !== 'number' || typeof lng !== 'number') {
-          // eslint-disable-next-line no-console
-          console.warn(
-            `Map: skipping place ${p.id} due to invalid coordinates`,
-            p
-          );
           return;
         }
         const marker = L.marker([lat, lng], {
@@ -106,10 +96,8 @@ const Map: React.FC<Props> = ({
       });
 
     markers.addTo(map);
-    // store reference so we can remove on next update
     offersLayerRef.current = markers;
 
-    // fit bounds to markers
     const latlngs: [number, number][] = [];
     places.forEach((p) => {
       if (p.city && p.city.name === cityName) {
@@ -126,9 +114,7 @@ const Map: React.FC<Props> = ({
       map.fitBounds(bounds, { padding: [50, 50] });
     }
 
-    return () => {
-      // not removing map instance here to keep as single instance
-    };
+    return () => {};
   }, [places, cityName]);
 
   // react to activeOfferId changes
@@ -150,8 +136,8 @@ const Map: React.FC<Props> = ({
       activeMarkerRef.current = null;
     }
 
-    if (activeOfferId != null) {
-      const m = markersMap[activeOfferId as any];
+    if (typeof activeOfferId === 'string' && activeOfferId !== '') {
+      const m = markersMap[activeOfferId];
       if (m) {
         m.setIcon(activeIcon);
         activeMarkerRef.current = m;

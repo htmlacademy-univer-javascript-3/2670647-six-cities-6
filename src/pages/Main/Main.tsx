@@ -1,5 +1,4 @@
 import Header from '../../components/Header';
-// Tabs removed — city selection is handled by CitiesList
 import PlacesList from '../../components/PlacesList/PlacesList';
 import Map from '../../components/Map/Map';
 import { useSelector } from 'react-redux';
@@ -19,13 +18,13 @@ const Main = () => {
   const activeCity = useSelector((s: RootState) => s.app.activeCity);
   const loading = useSelector((s: RootState) => s.app.loading);
   const error = useSelector((s: RootState) => s.app.error);
-  const [activeId, setActiveId] = useState<number | null>(null);
+  const [activeId, setActiveId] = useState<string | null>(null);
   const [sortType, setSortType] = useState<SortType>('Popular');
   const dispatch = useDispatch();
   const [dismissed, setDismissed] = useState(false);
 
   const places = useMemo(() => {
-    const filtered = offers.filter((p: any) => p.city?.name === activeCity);
+    const filtered = offers.filter((p) => p.city?.name === activeCity);
     if (sortType === 'Popular') {
       return filtered;
     }

@@ -5,12 +5,13 @@ import { fetchOffers } from './store/reducer';
 import { Provider } from 'react-redux';
 import store from './store';
 
-const root = ReactDOM.createRoot(
-  document.getElementById('root') as HTMLElement
-);
+const rootElement = document.getElementById('root');
+if (!rootElement) {
+  throw new Error('Root element not found');
+}
+const root = ReactDOM.createRoot(rootElement);
 
-// fetch offers from server on startup
-store.dispatch<any>(fetchOffers());
+store.dispatch(fetchOffers());
 
 root.render(
   <React.StrictMode>
