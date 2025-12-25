@@ -1,6 +1,7 @@
 import Header from '../../components/Header';
 import Tabs from '../../components/Tabs';
 import PlacesList from '../../components/PlacesList/PlacesList';
+import Map from '../../components/Map/Map';
 
 type Place = {
   id: number;
@@ -11,6 +12,7 @@ type Place = {
   image: string;
   isPremium?: boolean;
   isBookmarked?: boolean;
+  city?: { name: string; location: { lat: number; lng: number } };
 };
 
 type MainProps = {
@@ -62,7 +64,7 @@ const Main = ({ places, placesFound = 0 }: MainProps) => (
             <PlacesList places={places} />
           </section>
           <div className="cities__right-section">
-            <section className="cities__map map"></section>
+            <Map places={places} />
           </div>
         </div>
       </div>
