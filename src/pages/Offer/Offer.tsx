@@ -3,23 +3,14 @@ import CommentForm from '../../components/CommentForm/CommentForm';
 import ReviewsList from '../../components/Reviews/ReviewsList';
 import Map from '../../components/Map/Map';
 import PlaceCard from '../../components/PlaceCard/PlaceCard';
+import { useSelector } from 'react-redux';
+import { RootState } from '../../store';
 
-type Place = {
-  id: number;
-  title: string;
-  type: string;
-  price: number;
-  rating: number;
-  image: string;
-  isPremium?: boolean;
-  isBookmarked?: boolean;
-  description?: string;
-};
-
-const Offer = ({ places }: { places: Place[] }) => {
+const Offer = () => {
   const { id } = useParams();
   const offerId = Number(id);
-  const offer = places.find((p) => p.id === offerId);
+  const offers = useSelector((s: RootState) => s.app.offers);
+  const offer = offers.find((p) => p.id === offerId);
 
   // For now create a small static reviews array for the offer
   const reviews = [
@@ -40,7 +31,7 @@ const Offer = ({ places }: { places: Place[] }) => {
   ];
 
   // Nearby offers: pick up to 3 offers from places excluding current
-  const nearby = places.filter((p) => p.id !== offerId).slice(0, 3);
+  const nearby = offers.filter((p) => p.id !== offerId).slice(0, 3);
 
   return (
     <div className="page">
@@ -215,13 +206,15 @@ const Offer = ({ places }: { places: Place[] }) => {
             </div>
           </div>
           {nearby.length > 0 ? (
-            <Map
-              places={nearby}
-              containerClassName="offer__map map"
-              height="400px"
-            />
+            <div style={{ marginTop: '16px' }}>
+              <Map
+                places={nearby}
+                containerClassName="offer__map map"
+                height="400px"
+              />
+            </div>
           ) : (
-            <div className="offer__map map">
+            <div className="offer__map map" style={{ marginTop: '16px' }}>
               No nearby places to show on map.
             </div>
           )}
