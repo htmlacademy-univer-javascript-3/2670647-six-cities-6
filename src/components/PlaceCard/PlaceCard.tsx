@@ -16,22 +16,30 @@ type Props = {
   place: PlaceProps;
   onMouseEnter?: () => void;
   onMouseLeave?: () => void;
+  classNamePrefix?: string;
 };
 
-const PlaceCard: React.FC<Props> = ({ place, onMouseEnter, onMouseLeave }) => {
+const PlaceCard: React.FC<Props> = ({
+  place,
+  onMouseEnter,
+  onMouseLeave,
+  classNamePrefix = 'cities',
+}) => {
+  const prefix = classNamePrefix;
   const { id, title, type, price, rating, image, isPremium, isBookmarked } =
     place;
   const ratingWidth = `${(rating / 5) * 100}%`;
 
   return (
-    <article className="cities__card place-card">
+    <article className={`${prefix}__card place-card`}>
       {isPremium && (
         <div className="place-card__mark">
           <span>Premium</span>
         </div>
       )}
+
       <div
-        className="cities__image-wrapper place-card__image-wrapper"
+        className={`${prefix}__image-wrapper place-card__image-wrapper`}
         onMouseEnter={onMouseEnter}
         onMouseLeave={onMouseLeave}
       >
@@ -45,6 +53,7 @@ const PlaceCard: React.FC<Props> = ({ place, onMouseEnter, onMouseLeave }) => {
           />
         </Link>
       </div>
+
       <div className="place-card__info">
         <div className="place-card__price-wrapper">
           <div className="place-card__price">
@@ -65,12 +74,14 @@ const PlaceCard: React.FC<Props> = ({ place, onMouseEnter, onMouseLeave }) => {
             </span>
           </button>
         </div>
+
         <div className="place-card__rating rating">
           <div className="place-card__stars rating__stars">
             <span style={{ width: ratingWidth }}></span>
             <span className="visually-hidden">Rating</span>
           </div>
         </div>
+
         <h2 className="place-card__name">
           <Link to={`/offer/${id}`}>{title}</Link>
         </h2>
