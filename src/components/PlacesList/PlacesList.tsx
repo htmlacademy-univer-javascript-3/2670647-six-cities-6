@@ -14,10 +14,20 @@ type Place = {
 
 type Props = {
   places: Place[];
+  onActiveChange?: (id: number | null) => void;
 };
 
-const PlacesList: React.FC<Props> = ({ places }) => {
+const PlacesList: React.FC<Props> = ({ places, onActiveChange }) => {
   const [activeId, setActiveId] = useState<number | null>(null);
+
+  const handleEnter = (id: number) => {
+    setActiveId(id);
+    onActiveChange?.(id);
+  };
+  const handleLeave = () => {
+    setActiveId(null);
+    onActiveChange?.(null);
+  };
 
   return (
     <div className="cities__places-list places__list tabs__content">
@@ -25,8 +35,10 @@ const PlacesList: React.FC<Props> = ({ places }) => {
         <div key={p.id} data-active={activeId === p.id}>
           <PlaceCard
             place={p}
-            onMouseEnter={() => setActiveId(p.id)}
-            onMouseLeave={() => setActiveId(null)}
+            onMouseEnter={() => handleEnter(p.id)}
+            onMouseLeave={() => handleLeave()}
+            onFocus={() => handleEnter(p.id)}
+            onBlur={() => handleLeave()}
           />
         </div>
       ))}
