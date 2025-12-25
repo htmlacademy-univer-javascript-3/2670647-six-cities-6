@@ -1,6 +1,6 @@
 import Header from '../../components/Header';
 import Tabs from '../../components/Tabs';
-import PlaceCard from '../../components/PlaceCard';
+import PlacesList from '../../components/PlacesList/PlacesList';
 
 type Place = {
   id: number;
@@ -59,11 +59,7 @@ const Main = ({ places, placesFound = 0 }: MainProps) => (
               </ul>
             </form>
 
-            <div className="cities__places-list places__list tabs__content">
-              {places.map((p) => (
-                <PlaceCard key={p.id} place={p} />
-              ))}
-            </div>
+            <PlacesList places={places} />
           </section>
           <div className="cities__right-section">
             <section className="cities__map map"></section>

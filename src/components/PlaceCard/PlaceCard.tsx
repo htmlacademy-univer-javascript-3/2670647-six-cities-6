@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 
 type PlaceProps = {
   id: number;
@@ -11,8 +12,15 @@ type PlaceProps = {
   isBookmarked?: boolean;
 };
 
-const PlaceCard: React.FC<{ place: PlaceProps }> = ({ place }) => {
-  const { title, type, price, rating, image, isPremium, isBookmarked } = place;
+type Props = {
+  place: PlaceProps;
+  onMouseEnter?: () => void;
+  onMouseLeave?: () => void;
+};
+
+const PlaceCard: React.FC<Props> = ({ place, onMouseEnter, onMouseLeave }) => {
+  const { id, title, type, price, rating, image, isPremium, isBookmarked } =
+    place;
   const ratingWidth = `${(rating / 5) * 100}%`;
 
   return (
@@ -22,8 +30,12 @@ const PlaceCard: React.FC<{ place: PlaceProps }> = ({ place }) => {
           <span>Premium</span>
         </div>
       )}
-      <div className="cities__image-wrapper place-card__image-wrapper">
-        <a href="#">
+      <div
+        className="cities__image-wrapper place-card__image-wrapper"
+        onMouseEnter={onMouseEnter}
+        onMouseLeave={onMouseLeave}
+      >
+        <Link to={`/offer/${id}`}>
           <img
             className="place-card__image"
             src={image}
@@ -31,7 +43,7 @@ const PlaceCard: React.FC<{ place: PlaceProps }> = ({ place }) => {
             height={200}
             alt="Place image"
           />
-        </a>
+        </Link>
       </div>
       <div className="place-card__info">
         <div className="place-card__price-wrapper">
@@ -60,7 +72,7 @@ const PlaceCard: React.FC<{ place: PlaceProps }> = ({ place }) => {
           </div>
         </div>
         <h2 className="place-card__name">
-          <a href="#">{title}</a>
+          <Link to={`/offer/${id}`}>{title}</Link>
         </h2>
         <p className="place-card__type">{type}</p>
       </div>
