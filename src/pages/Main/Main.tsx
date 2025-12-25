@@ -4,6 +4,7 @@ import Map from '../../components/Map/Map';
 import { useSelector } from 'react-redux';
 import { useDispatch } from 'react-redux';
 import { RootState } from '../../store';
+import selectors from '../../store/selectors';
 import CitiesList from '../../components/CitiesList/CitiesList';
 import SortOptions, {
   SortType,
@@ -14,8 +15,10 @@ import Notification from '../../components/Notification/Notification';
 import { setError } from '../../store/reducer';
 
 const Main = () => {
-  const offers = useSelector((s: RootState) => s.app.offers);
   const activeCity = useSelector((s: RootState) => s.app.activeCity);
+  const offers = useSelector((s: RootState) =>
+    selectors.selectOffersByCity(s, activeCity)
+  );
   const loading = useSelector((s: RootState) => s.app.loading);
   const error = useSelector((s: RootState) => s.app.error);
   const [activeId, setActiveId] = useState<string | null>(null);
@@ -24,7 +27,7 @@ const Main = () => {
   const [dismissed, setDismissed] = useState(false);
 
   const places = useMemo(() => {
-    const filtered = offers.filter((p) => p.city?.name === activeCity);
+    const filtered = offers;
     if (sortType === 'Popular') {
       return filtered;
     }
@@ -36,7 +39,7 @@ const Main = () => {
     }
     // Top rated first
     return [...filtered].sort((a, b) => (b.rating ?? 0) - (a.rating ?? 0));
-  }, [offers, activeCity, sortType]);
+  }, [offers, sortType]);
   const placesFound = places.length;
   return (
     <div className="page page--gray page--main">

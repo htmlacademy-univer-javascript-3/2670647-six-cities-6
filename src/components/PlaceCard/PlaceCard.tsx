@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { Link } from 'react-router-dom';
 
 type PlaceProps = {
@@ -42,7 +42,7 @@ const PlaceCard: React.FC<Props> = ({
     isPremium,
     isFavorite,
   } = place;
-  const ratingWidth = `${(rating / 5) * 100}%`;
+  const ratingWidth = useMemo(() => `${(rating / 5) * 100}%`, [rating]);
 
   return (
     <article className={`${prefix}__card place-card`}>
@@ -108,4 +108,6 @@ const PlaceCard: React.FC<Props> = ({
   );
 };
 
-export default PlaceCard;
+const MemoizedPlaceCard = React.memo(PlaceCard);
+
+export default MemoizedPlaceCard;
