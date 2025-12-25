@@ -1,14 +1,28 @@
 import React, { useState } from 'react';
+import { useDispatch } from 'react-redux';
+import { AppDispatch } from '../../store';
+import { postComment } from '../../store/reducer';
 
-const CommentForm: React.FC = () => {
+type Props = {
+  offerId: string;
+};
+
+const CommentForm: React.FC<Props> = ({ offerId }) => {
   const [rating, setRating] = useState<number | null>(null);
   const [review, setReview] = useState('');
+  const dispatch = useDispatch<AppDispatch>();
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-
-    setReview('');
-    setRating(null);
+    if (!rating || review.length < 50) {
+      return;
+    }
+    void dispatch(postComment(offerId, rating, review)).then((ok) => {
+      if (ok) {
+        setReview('');
+        setRating(null);
+      }
+    });
   };
 
   return (

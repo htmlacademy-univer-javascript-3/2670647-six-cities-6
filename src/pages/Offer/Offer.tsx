@@ -1,35 +1,56 @@
-import { useParams } from 'react-router-dom';
+import { useEffect } from 'react';
+import { useParams, Navigate } from 'react-router-dom';
 import CommentForm from '../../components/CommentForm/CommentForm';
 import ReviewsList from '../../components/Reviews/ReviewsList';
 import Map from '../../components/Map/Map';
 import PlaceCard from '../../components/PlaceCard/PlaceCard';
-import { useSelector } from 'react-redux';
-import { RootState } from '../../store';
+import { useSelector, useDispatch } from 'react-redux';
+import { RootState, AppDispatch } from '../../store';
+import { fetchOfferDetails } from '../../store/reducer';
 
 const Offer = () => {
   const { id } = useParams();
-  const offerId = id;
-  const offers = useSelector((s: RootState) => s.app.offers);
-  const offer = offers.find((p) => p.id === offerId);
+  const offerId = id ?? '';
+  const dispatch = useDispatch<AppDispatch>();
+  const {
+    currentOffer: offer,
+    comments: reviews,
+    nearbyOffers: nearby,
+    offerLoading,
+    offerNotFound,
+    authorizationStatus: authStatus,
+  } = useSelector((s: RootState) => s.app);
 
-  const reviews = [
-    {
-      id: 1,
-      user: { name: 'Max', avatar: 'img/avatar-max.jpg' },
-      rating: 4,
-      text: offer?.description || 'Nice place',
-      date: '2019-04-24',
-    },
-    {
-      id: 2,
-      user: { name: 'Anna', avatar: 'img/avatar-angelina.jpg' },
-      rating: 5,
-      text: 'Really enjoyed staying here. Highly recommended.',
-      date: '2020-07-12',
-    },
-  ];
+  useEffect(() => {
+    if (offerId) {
+      void dispatch(fetchOfferDetails(offerId));
+    }
+  }, [dispatch, offerId]);
 
-  const nearby = offers.filter((p) => p.id !== offerId).slice(0, 3);
+  if (offerNotFound) {
+    return <Navigate to="/404" replace />;
+  }
+
+  if (offerLoading || !offer) {
+    return (
+      <div className="page page--loading">
+        <main className="page__main">
+          <h2>Loading...</h2>
+        </main>
+      </div>
+    );
+  }
+
+  const reviewsForList = reviews.map((r) => ({
+    id: r.id,
+    user: {
+      name: r.user.name ?? 'User',
+      avatar: r.user.avatarUrl ?? r.user.avatar ?? '',
+    },
+    rating: r.rating,
+    text: r.comment ?? '',
+    date: r.date,
+  }));
 
   return (
     <div className="page">
@@ -76,55 +97,20 @@ const Offer = () => {
         <section className="offer">
           <div className="offer__gallery-container container">
             <div className="offer__gallery">
-              <div className="offer__image-wrapper">
-                <img
-                  className="offer__image"
-                  src="img/room.jpg"
-                  alt="Photo studio"
-                />
-              </div>
-              <div className="offer__image-wrapper">
-                <img
-                  className="offer__image"
-                  src="img/apartment-01.jpg"
-                  alt="Photo studio"
-                />
-              </div>
-              <div className="offer__image-wrapper">
-                <img
-                  className="offer__image"
-                  src="img/apartment-02.jpg"
-                  alt="Photo studio"
-                />
-              </div>
-              <div className="offer__image-wrapper">
-                <img
-                  className="offer__image"
-                  src="img/apartment-03.jpg"
-                  alt="Photo studio"
-                />
-              </div>
-              <div className="offer__image-wrapper">
-                <img
-                  className="offer__image"
-                  src="img/studio-01.jpg"
-                  alt="Photo studio"
-                />
-              </div>
-              <div className="offer__image-wrapper">
-                <img
-                  className="offer__image"
-                  src="img/apartment-01.jpg"
-                  alt="Photo studio"
-                />
-              </div>
+              {(offer.images || []).map((img) => (
+                <div key={img} className="offer__image-wrapper">
+                  <img className="offer__image" src={img} alt="Photo studio" />
+                </div>
+              ))}
             </div>
           </div>
           <div className="offer__container container">
             <div className="offer__wrapper">
-              <div className="offer__mark">
-                <span>Premium</span>
-              </div>
+              {offer.isPremium ? (
+                <div className="offer__mark">
+                  <span>Premium</span>
+                </div>
+              ) : null}
               <div className="offer__name-wrapper">
                 <h1 className="offer__name">{offer ? offer.title : 'Offer'}</h1>
                 <button className="offer__bookmark-button button" type="button">
@@ -143,13 +129,13 @@ const Offer = () => {
               </div>
               <ul className="offer__features">
                 <li className="offer__feature offer__feature--entire">
-                  Apartment
+                  {offer.type}
                 </li>
                 <li className="offer__feature offer__feature--bedrooms">
-                  3 Bedrooms
+                  {offer.bedrooms} Bedrooms
                 </li>
                 <li className="offer__feature offer__feature--adults">
-                  Max 4 adults
+                  Max {offer.maxAdults} adults
                 </li>
               </ul>
               <div className="offer__price">
@@ -159,54 +145,51 @@ const Offer = () => {
               <div className="offer__inside">
                 <h2 className="offer__inside-title">What&apos;s inside</h2>
                 <ul className="offer__inside-list">
-                  <li className="offer__inside-item">Wi-Fi</li>
-                  <li className="offer__inside-item">Washing machine</li>
-                  <li className="offer__inside-item">Towels</li>
-                  <li className="offer__inside-item">Heating</li>
-                  <li className="offer__inside-item">Coffee machine</li>
-                  <li className="offer__inside-item">Baby seat</li>
-                  <li className="offer__inside-item">Kitchen</li>
-                  <li className="offer__inside-item">Dishwasher</li>
-                  <li className="offer__inside-item">Cabel TV</li>
-                  <li className="offer__inside-item">Fridge</li>
+                  {(offer.goods || []).map((g) => (
+                    <li key={g} className="offer__inside-item">
+                      {g}
+                    </li>
+                  ))}
                 </ul>
               </div>
               <div className="offer__host">
                 <h2 className="offer__host-title">Meet the host</h2>
                 <div className="offer__host-user user">
-                  <div className="offer__avatar-wrapper offer__avatar-wrapper--pro user__avatar-wrapper">
-                    <img
-                      className="offer__avatar user__avatar"
-                      src="img/avatar-angelina.jpg"
-                      width="74"
-                      height="74"
-                      alt="Host avatar"
-                    />
+                  <div
+                    className={`offer__avatar-wrapper ${
+                      offer.host?.isPro ? 'offer__avatar-wrapper--pro' : ''
+                    } user__avatar-wrapper`}
+                  >
+                    {offer.host?.avatarUrl ? (
+                      <img
+                        className="offer__avatar user__avatar"
+                        src={offer.host.avatarUrl}
+                        width={74}
+                        height={74}
+                        alt="Host avatar"
+                      />
+                    ) : (
+                      <div className="offer__avatar user__avatar" />
+                    )}
                   </div>
-                  <span className="offer__user-name">Angelina</span>
-                  <span className="offer__user-status">Pro</span>
+                  <span className="offer__user-name">{offer.host?.name}</span>
+                  {offer.host?.isPro ? (
+                    <span className="offer__user-status">Pro</span>
+                  ) : null}
                 </div>
                 <div className="offer__description">
-                  <p className="offer__text">
-                    A quiet cozy and picturesque that hides behind a a river by
-                    the unique lightness of Amsterdam. The building is green and
-                    from 18th century.
-                  </p>
-                  <p className="offer__text">
-                    An independent House, strategically located between Rembrand
-                    Square and National Opera, but where the bustle of the city
-                    comes to rest in this alley flowery and colorful.
-                  </p>
+                  <p className="offer__text">{offer.description}</p>
                 </div>
               </div>
-              <ReviewsList reviews={reviews} />
-              <CommentForm />
+              <ReviewsList reviews={reviewsForList} />
+              {authStatus === 'AUTH' ? <CommentForm offerId={offerId} /> : null}
             </div>
           </div>
           {nearby.length > 0 ? (
             <div style={{ marginTop: '16px' }}>
               <Map
                 places={nearby}
+                cityName={offer.city?.name}
                 containerClassName="offer__map map"
                 height="400px"
               />
