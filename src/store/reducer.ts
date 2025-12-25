@@ -108,6 +108,16 @@ const slice = createSlice({
       state.authorizationStatus = 'NO_AUTH';
       state.userEmail = null;
     },
+    updateOffer(state, action: PayloadAction<Place>) {
+      const updated = action.payload;
+      const idx = state.offers.findIndex((o) => o.id === updated.id);
+      if (idx >= 0) {
+        state.offers[idx] = updated;
+      }
+      if (state.currentOffer && state.currentOffer.id === updated.id) {
+        state.currentOffer = updated;
+      }
+    },
   },
 });
 
@@ -124,8 +134,25 @@ export const {
   setNearbyOffers,
   setOfferLoading,
   setOfferNotFound,
+  updateOffer,
   signOut,
 } = slice.actions;
+
+export const logout =
+  (): AppThunk<Promise<void>> =>
+    async (dispatch, _getState, api: AxiosInstance): Promise<void> => {
+      try {
+        await api.delete('/logout');
+      } catch {
+      // ignore errors on logout
+      }
+      try {
+        localStorage.removeItem('six-cities-token');
+      } catch {
+        void 0;
+      }
+      dispatch(signOut());
+    };
 
 export const fetchOffers =
   (): AppThunk<Promise<void>> =>
@@ -222,6 +249,24 @@ export const postComment =
           }
         }
         dispatch(setError('Failed to post comment. Try again later.'));
+        return false;
+      }
+      return false;
+    };
+
+export const toggleFavorite =
+  (offerId: string, status: 0 | 1): AppThunk<Promise<boolean>> =>
+    async (dispatch, _getState, api: AxiosInstance): Promise<boolean> => {
+      dispatch(setError(null));
+      try {
+        const response = await api.post(`/favorite/${offerId}/${status}`);
+        if (response.status >= 200 && response.status < 300) {
+          const updated = response.data as Place;
+          dispatch(updateOffer(updated));
+          return true;
+        }
+      } catch (errUnknown) {
+        dispatch(setError('Failed to update favorite. Try again later.'));
         return false;
       }
       return false;
