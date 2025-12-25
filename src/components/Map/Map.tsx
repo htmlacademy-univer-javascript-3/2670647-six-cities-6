@@ -10,9 +10,17 @@ type Place = {
 type Props = {
   places: Place[];
   cityName?: string;
+  containerClassName?: string;
+  // height can be a number (px) or string (e.g. '400px', '50%')
+  height?: number | string;
 };
 
-const Map: React.FC<Props> = ({ places, cityName = 'Amsterdam' }) => {
+const Map: React.FC<Props> = ({
+  places,
+  cityName = 'Amsterdam',
+  containerClassName = 'cities__map map',
+  height,
+}) => {
   const mapRef = useRef<HTMLDivElement | null>(null);
   const leafletMap = useRef<L.Map | null>(null);
   const offersLayerRef = useRef<L.LayerGroup | null>(null);
@@ -81,8 +89,15 @@ const Map: React.FC<Props> = ({ places, cityName = 'Amsterdam' }) => {
     };
   }, [places, cityName]);
 
+  const styleHeight =
+    typeof height === 'number' ? `${height}px` : height ?? '100%';
+
   return (
-    <div ref={mapRef} className="cities__map map" style={{ height: '100%' }} />
+    <div
+      ref={mapRef}
+      className={containerClassName}
+      style={{ height: styleHeight }}
+    />
   );
 };
 
