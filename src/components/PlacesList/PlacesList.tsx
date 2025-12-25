@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import PlaceCard from '../PlaceCard/PlaceCard';
 
 type Place = {
@@ -21,14 +21,17 @@ type Props = {
 const PlacesList: React.FC<Props> = ({ places, onActiveChange }) => {
   const [activeId, setActiveId] = useState<string | null>(null);
 
-  const handleEnter = (id: string) => {
-    setActiveId(id);
-    onActiveChange?.(id);
-  };
-  const handleLeave = () => {
+  const handleEnter = useCallback(
+    (id: string) => {
+      setActiveId(id);
+      onActiveChange?.(id);
+    },
+    [onActiveChange]
+  );
+  const handleLeave = useCallback(() => {
     setActiveId(null);
     onActiveChange?.(null);
-  };
+  }, [onActiveChange]);
 
   return (
     <div className="cities__places-list places__list tabs__content">
@@ -37,9 +40,9 @@ const PlacesList: React.FC<Props> = ({ places, onActiveChange }) => {
           <PlaceCard
             place={p}
             onMouseEnter={() => handleEnter(p.id)}
-            onMouseLeave={() => handleLeave()}
+            onMouseLeave={handleLeave}
             onFocus={() => handleEnter(p.id)}
-            onBlur={() => handleLeave()}
+            onBlur={handleLeave}
           />
         </div>
       ))}
