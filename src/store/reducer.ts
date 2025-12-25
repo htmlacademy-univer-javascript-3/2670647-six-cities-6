@@ -13,14 +13,35 @@ type Place = {
   image?: string;
   isPremium?: boolean;
   description?: string;
-  city?: { name: string; location: { latitude: number; longitude: number } };
-  location?: { latitude: number; longitude: number };
+  city?: {
+    name: string;
+    location: { latitude: number; longitude: number; zoom?: number };
+  };
+  location?: { latitude: number; longitude: number; zoom?: number };
+  bedrooms?: number;
+  goods?: string[];
+  host?: { name: string; avatarUrl?: string; isPro?: boolean };
+  images?: string[];
+  maxAdults?: number;
+};
+
+export type CommentItem = {
+  id: string | number;
+  user: { name: string; avatarUrl?: string; avatar?: string; isPro?: boolean };
+  rating: number;
+  comment: string;
+  date: string;
 };
 
 type State = {
   activeCity: string;
   offers: Place[];
   loading: boolean;
+  offerLoading: boolean;
+  offerNotFound: boolean;
+  currentOffer?: Place | null;
+  comments: CommentItem[];
+  nearbyOffers: Place[];
   error?: string | null;
   authorizationStatus: 'AUTH' | 'NO_AUTH' | 'UNKNOWN';
   userEmail?: string | null;
@@ -30,6 +51,11 @@ const initialState: State = {
   activeCity: 'Paris',
   offers: [],
   loading: false,
+  offerLoading: false,
+  offerNotFound: false,
+  currentOffer: null,
+  comments: [],
+  nearbyOffers: [],
   error: null,
   authorizationStatus: 'NO_AUTH',
   userEmail: null,
@@ -60,6 +86,24 @@ const slice = createSlice({
     setUserEmail(state, action: PayloadAction<string | null>) {
       state.userEmail = action.payload;
     },
+    setCurrentOffer(state, action: PayloadAction<Place | null>) {
+      state.currentOffer = action.payload;
+    },
+    setComments(state, action: PayloadAction<CommentItem[]>) {
+      state.comments = action.payload;
+    },
+    addComment(state, action: PayloadAction<CommentItem>) {
+      state.comments = [action.payload, ...state.comments];
+    },
+    setNearbyOffers(state, action: PayloadAction<Place[]>) {
+      state.nearbyOffers = action.payload;
+    },
+    setOfferLoading(state, action: PayloadAction<boolean>) {
+      state.offerLoading = action.payload;
+    },
+    setOfferNotFound(state, action: PayloadAction<boolean>) {
+      state.offerNotFound = action.payload;
+    },
     signOut(state) {
       state.authorizationStatus = 'NO_AUTH';
       state.userEmail = null;
@@ -74,6 +118,12 @@ export const {
   setError,
   setAuthorizationStatus,
   setUserEmail,
+  setCurrentOffer,
+  setComments,
+  addComment,
+  setNearbyOffers,
+  setOfferLoading,
+  setOfferNotFound,
   signOut,
 } = slice.actions;
 
@@ -102,6 +152,79 @@ export const fetchOffers =
       } finally {
         dispatch(setLoading(false));
       }
+    };
+
+export const fetchOfferDetails =
+  (id: string): AppThunk<Promise<void>> =>
+    async (dispatch, _getState, api: AxiosInstance): Promise<void> => {
+      dispatch(setOfferLoading(true));
+      dispatch(setError(null));
+      dispatch(setOfferNotFound(false));
+      try {
+        const [offerRes, commentsRes, nearbyRes] = await Promise.all([
+          api.get(`/offers/${id}`),
+          api.get(`/comments/${id}`),
+          api.get(`/offers/${id}/nearby`),
+        ]);
+
+        dispatch(setCurrentOffer(offerRes.data as Place));
+        dispatch(setComments(commentsRes.data as CommentItem[]));
+        dispatch(setNearbyOffers(nearbyRes.data as Place[]));
+      } catch (errUnknown) {
+        const err = errUnknown as { response?: { status?: number } };
+        const status = err.response?.status ?? null;
+        if (status === 404) {
+          dispatch(setOfferNotFound(true));
+          return;
+        }
+        dispatch(setError('Failed to load offer details. Try again later.'));
+      } finally {
+        dispatch(setOfferLoading(false));
+      }
+    };
+
+export const postComment =
+  (
+    offerId: string,
+    rating: number,
+    comment: string
+  ): AppThunk<Promise<boolean>> =>
+    async (dispatch, _getState, api: AxiosInstance): Promise<boolean> => {
+      dispatch(setError(null));
+      try {
+        const response = await api.post(`/comments/${offerId}`, {
+          rating,
+          comment,
+        });
+        if (response.status >= 200 && response.status < 300) {
+        // refresh comments list after successful post
+          const commentsRes = await api.get(`/comments/${offerId}`);
+          if (commentsRes.status === 200) {
+            dispatch(setComments(commentsRes.data as CommentItem[]));
+          }
+          return true;
+        }
+      } catch (errUnknown) {
+        const err = errUnknown as {
+        response?: { status?: number; data?: unknown };
+      };
+        const status = err.response?.status ?? null;
+        const dataUnknown = err.response?.data;
+        if (
+          status === 400 &&
+        typeof dataUnknown === 'object' &&
+        dataUnknown !== null
+        ) {
+          const obj = dataUnknown as Record<string, unknown>;
+          if (typeof obj.message === 'string') {
+            dispatch(setError(obj.message));
+            return false;
+          }
+        }
+        dispatch(setError('Failed to post comment. Try again later.'));
+        return false;
+      }
+      return false;
     };
 
 export const checkAuth =
