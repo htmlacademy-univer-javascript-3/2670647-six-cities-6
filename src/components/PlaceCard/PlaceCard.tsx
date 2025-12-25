@@ -2,14 +2,15 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 
 type PlaceProps = {
-  id: number;
+  id: string;
   title: string;
   type: string;
   price: number;
   rating: number; // 0-5
-  image: string;
+  previewImage?: string;
+  image?: string;
   isPremium?: boolean;
-  isBookmarked?: boolean;
+  isFavorite?: boolean;
 };
 
 type Props = {
@@ -30,8 +31,17 @@ const PlaceCard: React.FC<Props> = ({
   classNamePrefix = 'cities',
 }) => {
   const prefix = classNamePrefix;
-  const { id, title, type, price, rating, image, isPremium, isBookmarked } =
-    place;
+  const {
+    id,
+    title,
+    type,
+    price,
+    rating,
+    previewImage,
+    image,
+    isPremium,
+    isFavorite,
+  } = place;
   const ratingWidth = `${(rating / 5) * 100}%`;
 
   return (
@@ -53,10 +63,10 @@ const PlaceCard: React.FC<Props> = ({
         <Link to={`/offer/${id}`}>
           <img
             className="place-card__image"
-            src={image}
+            src={previewImage ?? image ?? 'img/room.jpg'}
             width={260}
             height={200}
-            alt="Place image"
+            alt={title}
           />
         </Link>
       </div>
@@ -69,7 +79,7 @@ const PlaceCard: React.FC<Props> = ({
           </div>
           <button
             className={`place-card__bookmark-button ${
-              isBookmarked ? 'place-card__bookmark-button--active' : ''
+              isFavorite ? 'place-card__bookmark-button--active' : ''
             } button`}
             type="button"
           >
@@ -77,7 +87,7 @@ const PlaceCard: React.FC<Props> = ({
               <use xlinkHref="#icon-bookmark"></use>
             </svg>
             <span className="visually-hidden">
-              {isBookmarked ? 'In bookmarks' : 'To bookmarks'}
+              {isFavorite ? 'In bookmarks' : 'To bookmarks'}
             </span>
           </button>
         </div>

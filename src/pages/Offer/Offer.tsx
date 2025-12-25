@@ -8,7 +8,7 @@ import { RootState } from '../../store';
 
 const Offer = () => {
   const { id } = useParams();
-  const offerId = Number(id);
+  const offerId = id as string | undefined;
   const offers = useSelector((s: RootState) => s.app.offers);
   const offer = offers.find((p) => p.id === offerId);
 

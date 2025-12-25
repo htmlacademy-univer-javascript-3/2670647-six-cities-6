@@ -1,17 +1,16 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { App } from './App';
-import offers from './mocks/offers';
+import { fetchOffers } from './store/reducer';
 import { Provider } from 'react-redux';
 import store from './store';
-import { setOffers } from './store/reducer';
 
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement
 );
 
-// populate store with test offers
-store.dispatch(setOffers(offers));
+// fetch offers from server on startup
+store.dispatch<any>(fetchOffers());
 
 root.render(
   <React.StrictMode>
