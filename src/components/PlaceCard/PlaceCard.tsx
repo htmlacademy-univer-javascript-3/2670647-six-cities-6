@@ -16,6 +16,8 @@ type Props = {
   place: PlaceProps;
   onMouseEnter?: () => void;
   onMouseLeave?: () => void;
+  onFocus?: () => void;
+  onBlur?: () => void;
   classNamePrefix?: string;
 };
 
@@ -23,6 +25,8 @@ const PlaceCard: React.FC<Props> = ({
   place,
   onMouseEnter,
   onMouseLeave,
+  onFocus,
+  onBlur,
   classNamePrefix = 'cities',
 }) => {
   const prefix = classNamePrefix;
@@ -42,6 +46,9 @@ const PlaceCard: React.FC<Props> = ({
         className={`${prefix}__image-wrapper place-card__image-wrapper`}
         onMouseEnter={onMouseEnter}
         onMouseLeave={onMouseLeave}
+        onFocus={onFocus}
+        onBlur={onBlur}
+        tabIndex={0}
       >
         <Link to={`/offer/${id}`}>
           <img
