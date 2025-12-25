@@ -1,7 +1,6 @@
 import React from 'react';
 
 type ReviewProps = {
-  id: string | number;
   user: { name: string; avatar: string };
   rating: number;
   text: string;
