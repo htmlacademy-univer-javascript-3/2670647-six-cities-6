@@ -24,7 +24,7 @@ const Offer = () => {
                 <li className="header__nav-item user">
                   <a
                     className="header__nav-link header__nav-link--profile"
-                    href="#"
+                    href="/"
                   >
                     <div className="header__avatar-wrapper user__avatar-wrapper"></div>
                     <span className="header__user-name user__name">
@@ -34,7 +34,7 @@ const Offer = () => {
                   </a>
                 </li>
                 <li className="header__nav-item">
-                  <a className="header__nav-link" href="#">
+                  <a className="header__nav-link" href="/">
                     <span className="header__signout">Sign out</span>
                   </a>
                 </li>
@@ -308,12 +308,12 @@ const Offer = () => {
                     id="review"
                     name="review"
                     placeholder="Tell how was your stay, what you like and what can be improved"
-                  ></textarea>
+                  />
                   <div className="reviews__button-wrapper">
                     <p className="reviews__help">
-                      To submit review please make sure to set{' '}
-                      <span className="reviews__star">rating</span> and describe
-                      your stay with at least{' '}
+                      To submit review please make sure to set
+                      <span className="reviews__star">rating</span>
+                      and describe your stay with at least
                       <b className="reviews__text-amount">50 characters</b>.
                     </p>
                     <button
@@ -338,7 +338,7 @@ const Offer = () => {
             <div className="near-places__list places__list">
               <article className="near-places__card place-card">
                 <div className="near-places__image-wrapper place-card__image-wrapper">
-                  <a href="#">
+                  <a href="/">
                     <img
                       className="place-card__image"
                       src="img/room.jpg"
@@ -377,7 +377,7 @@ const Offer = () => {
                     </div>
                   </div>
                   <h2 className="place-card__name">
-                    <a href="#">Wood and stone place</a>
+                    <a href="/">Wood and stone place</a>
                   </h2>
                   <p className="place-card__type">Room</p>
                 </div>
@@ -385,7 +385,7 @@ const Offer = () => {
 
               <article className="near-places__card place-card">
                 <div className="near-places__image-wrapper place-card__image-wrapper">
-                  <a href="#">
+                  <a href="/">
                     <img
                       className="place-card__image"
                       src="img/apartment-02.jpg"
@@ -424,7 +424,7 @@ const Offer = () => {
                     </div>
                   </div>
                   <h2 className="place-card__name">
-                    <a href="#">Canal View Prinsengracht</a>
+                    <a href="/">Canal View Prinsengracht</a>
                   </h2>
                   <p className="place-card__type">Apartment</p>
                 </div>
@@ -435,7 +435,7 @@ const Offer = () => {
                   <span>Premium</span>
                 </div>
                 <div className="near-places__image-wrapper place-card__image-wrapper">
-                  <a href="#">
+                  <a href="/">
                     <img
                       className="place-card__image"
                       src="img/apartment-03.jpg"
@@ -474,7 +474,7 @@ const Offer = () => {
                     </div>
                   </div>
                   <h2 className="place-card__name">
-                    <a href="#">Nice, cozy, warm big bed apartment</a>
+                    <a href="/">Nice, cozy, warm big bed apartment</a>
                   </h2>
                   <p className="place-card__type">Apartment</p>
                 </div>
