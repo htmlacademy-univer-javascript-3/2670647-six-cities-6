@@ -14,7 +14,10 @@ const offers = [
       'A quiet cozy and picturesque that hides behind a a river by the unique lightness of Amsterdam.',
     host: { name: 'Angelina', avatar: 'img/avatar-angelina.jpg', isPro: true },
     goods: ['Wi-Fi', 'Washing machine', 'Towels', 'Heating', 'Coffee machine'],
-    city: { name: 'Amsterdam', location: { lat: 52.38333, lng: 4.9 } },
+    city: {
+      name: 'Amsterdam',
+      location: { lat: 52.3909553943508, lng: 4.85309666406198 },
+    },
   },
   {
     id: 102,
@@ -30,7 +33,10 @@ const offers = [
     description: 'Cozy room in the city center, close to public transport.',
     host: { name: 'Max', avatar: 'img/avatar-max.jpg', isPro: false },
     goods: ['Wi-Fi', 'Kitchen'],
-    city: { name: 'Amsterdam', location: { lat: 52.38333, lng: 4.9 } },
+    city: {
+      name: 'Amsterdam',
+      location: { lat: 52.3609553943508, lng: 4.85309666406198 },
+    },
   },
   {
     id: 103,
@@ -47,7 +53,10 @@ const offers = [
       'Elegant apartment with canal views and comfortable interiors.',
     host: { name: 'Sophie', avatar: 'img/avatar.svg', isPro: false },
     goods: ['Towels', 'Dishwasher', 'Fridge'],
-    city: { name: 'Amsterdam', location: { lat: 52.38333, lng: 4.9 } },
+    city: {
+      name: 'Amsterdam',
+      location: { lat: 52.3909553943508, lng: 4.929309666406198 },
+    },
   },
   {
     id: 104,
@@ -63,7 +72,10 @@ const offers = [
     description: 'Spacious apartment ideal for families and groups.',
     host: { name: 'Oliver', avatar: 'img/avatar.svg', isPro: true },
     goods: ['Kitchen', 'Coffee machine', 'Baby seat', 'Cabel TV'],
-    city: { name: 'Amsterdam', location: { lat: 52.38333, lng: 4.9 } },
+    city: {
+      name: 'Amsterdam',
+      location: { lat: 52.3809553943508, lng: 4.939309666406198 },
+    },
   },
 ];
 
