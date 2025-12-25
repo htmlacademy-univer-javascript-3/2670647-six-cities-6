@@ -6,8 +6,7 @@ type PrivateRouteProps = {
 
 const isAuthenticated = false; // пока всегда не авторизован
 
-const PrivateRoute = ({ children }: PrivateRouteProps) => {
-  return isAuthenticated ? children : <Navigate to="/login" />;
-};
+const PrivateRoute = ({ children }: PrivateRouteProps) =>
+  isAuthenticated ? children : <Navigate to="/login" />;
 
 export default PrivateRoute;

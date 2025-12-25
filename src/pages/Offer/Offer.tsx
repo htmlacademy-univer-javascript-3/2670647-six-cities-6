@@ -101,6 +101,7 @@ const Offer = () => {
                 <h1 className="offer__name">
                   Beautiful &amp; luxurious studio at great location
                 </h1>
+                <p className="offer__id">Offer id: {id}</p>
                 <button className="offer__bookmark-button button" type="button">
                   <svg className="offer__bookmark-icon" width="31" height="33">
                     <use xlinkHref="#icon-bookmark"></use>
@@ -131,7 +132,7 @@ const Offer = () => {
                 <span className="offer__price-text"> &nbsp;night</span>
               </div>
               <div className="offer__inside">
-                <h2 className="offer__inside-title">What's inside</h2>
+                <h2 className="offer__inside-title">What&apos;s inside</h2>
                 <ul className="offer__inside-list">
                   <li className="offer__inside-item">Wi-Fi</li>
                   <li className="offer__inside-item">Washing machine</li>
