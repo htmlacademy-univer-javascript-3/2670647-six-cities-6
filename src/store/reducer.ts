@@ -1,5 +1,7 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { AxiosInstance } from 'axios';
+import { adaptOffer } from '../utils/mapper';
+import type { ApiOffer } from '../utils/mapper';
 import type { AppThunk } from './index';
 
 type Place = {
@@ -140,75 +142,83 @@ export const {
 
 export const logout =
   (): AppThunk<Promise<void>> =>
-    async (dispatch, _getState, api: AxiosInstance): Promise<void> => {
-      try {
-        await api.delete('/logout');
-      } catch {
+  async (dispatch, _getState, api: AxiosInstance): Promise<void> => {
+    try {
+      await api.delete('/logout');
+    } catch {
       // ignore errors on logout
-      }
-      try {
-        localStorage.removeItem('six-cities-token');
-      } catch {
-        void 0;
-      }
-      dispatch(signOut());
-    };
+    }
+    try {
+      localStorage.removeItem('six-cities-token');
+    } catch {
+      void 0;
+    }
+    dispatch(signOut());
+  };
 
 export const fetchOffers =
   (): AppThunk<Promise<void>> =>
-    async (dispatch, _getState, api: AxiosInstance): Promise<void> => {
-      dispatch(setLoading(true));
-      dispatch(setError(null));
-      try {
-        const response = await api.get('/offers');
-        dispatch(setOffers(response.data as Place[]));
-      } catch (errUnknown) {
-        let userMessage = 'Server is unavailable. Please try again later.';
+  async (dispatch, _getState, api: AxiosInstance): Promise<void> => {
+    dispatch(setLoading(true));
+    dispatch(setError(null));
 
-        const err = errUnknown as { response?: { status?: number } };
-        const status = err.response?.status ?? null;
-        if (status === 401) {
-          userMessage = 'Authorization required. Please sign in.';
-        } else if (status === 403) {
-          userMessage = 'Access denied.';
-        } else if (status === 404) {
-          userMessage = 'Requested data not found on the server.';
-        }
+    try {
+      const response = await api.get('/offers');
+      const data = response.data as unknown[];
+      const normalized = data.map((d) => adaptOffer(d as ApiOffer));
+      dispatch(setOffers(normalized));
+    } catch (errUnknown) {
+      let userMessage = 'Server is unavailable. Please try again later.';
 
-        dispatch(setError(userMessage));
-      } finally {
-        dispatch(setLoading(false));
+      const err = errUnknown as { response?: { status?: number } };
+      const status = err.response?.status ?? null;
+      if (status === 401) {
+        userMessage = 'Authorization required. Please sign in.';
+      } else if (status === 403) {
+        userMessage = 'Access denied.';
+      } else if (status === 404) {
+        userMessage = 'Requested data not found on the server.';
       }
-    };
+
+      dispatch(setError(userMessage));
+    } finally {
+      dispatch(setLoading(false));
+    }
+  };
 
 export const fetchOfferDetails =
   (id: string): AppThunk<Promise<void>> =>
-    async (dispatch, _getState, api: AxiosInstance): Promise<void> => {
-      dispatch(setOfferLoading(true));
-      dispatch(setError(null));
-      dispatch(setOfferNotFound(false));
-      try {
-        const [offerRes, commentsRes, nearbyRes] = await Promise.all([
-          api.get(`/offers/${id}`),
-          api.get(`/comments/${id}`),
-          api.get(`/offers/${id}/nearby`),
-        ]);
+  async (dispatch, _getState, api: AxiosInstance): Promise<void> => {
+    dispatch(setOfferLoading(true));
+    dispatch(setError(null));
+    dispatch(setOfferNotFound(false));
+    try {
+      const [offerRes, commentsRes, nearbyRes] = await Promise.all([
+        api.get(`/offers/${id}`),
+        api.get(`/comments/${id}`),
+        api.get(`/offers/${id}/nearby`),
+      ]);
 
-        dispatch(setCurrentOffer(offerRes.data as Place));
-        dispatch(setComments(commentsRes.data as CommentItem[]));
-        dispatch(setNearbyOffers(nearbyRes.data as Place[]));
-      } catch (errUnknown) {
-        const err = errUnknown as { response?: { status?: number } };
-        const status = err.response?.status ?? null;
-        if (status === 404) {
-          dispatch(setOfferNotFound(true));
-          return;
-        }
-        dispatch(setError('Failed to load offer details. Try again later.'));
-      } finally {
-        dispatch(setOfferLoading(false));
+      const offer = adaptOffer(offerRes.data as ApiOffer);
+      const nearby = (nearbyRes.data as unknown[]).map((d) =>
+        adaptOffer(d as ApiOffer)
+      );
+
+      dispatch(setCurrentOffer(offer));
+      dispatch(setComments(commentsRes.data as CommentItem[]));
+      dispatch(setNearbyOffers(nearby));
+    } catch (errUnknown) {
+      const err = errUnknown as { response?: { status?: number } };
+      const status = err.response?.status ?? null;
+      if (status === 404) {
+        dispatch(setOfferNotFound(true));
+        return;
       }
-    };
+      dispatch(setError('Failed to load offer details. Try again later.'));
+    } finally {
+      dispatch(setOfferLoading(false));
+    }
+  };
 
 export const postComment =
   (
@@ -216,66 +226,66 @@ export const postComment =
     rating: number,
     comment: string
   ): AppThunk<Promise<boolean>> =>
-    async (dispatch, _getState, api: AxiosInstance): Promise<boolean> => {
-      dispatch(setError(null));
-      try {
-        const response = await api.post(`/comments/${offerId}`, {
-          rating,
-          comment,
-        });
-        if (response.status >= 200 && response.status < 300) {
+  async (dispatch, _getState, api: AxiosInstance): Promise<boolean> => {
+    dispatch(setError(null));
+    try {
+      const response = await api.post(`/comments/${offerId}`, {
+        rating,
+        comment,
+      });
+      if (response.status >= 200 && response.status < 300) {
         // refresh comments list after successful post
-          const commentsRes = await api.get(`/comments/${offerId}`);
-          if (commentsRes.status === 200) {
-            dispatch(setComments(commentsRes.data as CommentItem[]));
-          }
-          return true;
+        const commentsRes = await api.get(`/comments/${offerId}`);
+        if (commentsRes.status === 200) {
+          dispatch(setComments(commentsRes.data as CommentItem[]));
         }
-      } catch (errUnknown) {
-        const err = errUnknown as {
+        return true;
+      }
+    } catch (errUnknown) {
+      const err = errUnknown as {
         response?: { status?: number; data?: unknown };
       };
-        const status = err.response?.status ?? null;
-        const dataUnknown = err.response?.data;
-        if (
-          status === 400 &&
+      const status = err.response?.status ?? null;
+      const dataUnknown = err.response?.data;
+      if (
+        status === 400 &&
         typeof dataUnknown === 'object' &&
         dataUnknown !== null
-        ) {
-          const obj = dataUnknown as Record<string, unknown>;
-          if (typeof obj.message === 'string') {
-            dispatch(setError(obj.message));
-            return false;
-          }
+      ) {
+        const obj = dataUnknown as Record<string, unknown>;
+        if (typeof obj.message === 'string') {
+          dispatch(setError(obj.message));
+          return false;
         }
-        dispatch(setError('Failed to post comment. Try again later.'));
-        return false;
       }
+      dispatch(setError('Failed to post comment. Try again later.'));
       return false;
-    };
+    }
+    return false;
+  };
 
 export const toggleFavorite =
   (offerId: string, status: 0 | 1): AppThunk<Promise<boolean>> =>
-    async (dispatch, _getState, api: AxiosInstance): Promise<boolean> => {
-      dispatch(setError(null));
-      try {
-        const response = await api.post(`/favorite/${offerId}/${status}`);
-        if (response.status >= 200 && response.status < 300) {
-          const updated = response.data as Place;
-          dispatch(updateOffer(updated));
-          return true;
-        }
-      } catch (errUnknown) {
-        dispatch(setError('Failed to update favorite. Try again later.'));
-        return false;
+  async (dispatch, _getState, api: AxiosInstance): Promise<boolean> => {
+    dispatch(setError(null));
+    try {
+      const response = await api.post(`/favorite/${offerId}/${status}`);
+      if (response.status >= 200 && response.status < 300) {
+        const updated = adaptOffer(response.data as ApiOffer);
+        dispatch(updateOffer(updated));
+        return true;
       }
+    } catch (errUnknown) {
+      dispatch(setError('Failed to update favorite. Try again later.'));
       return false;
-    };
+    }
+    return false;
+  };
 
 export const checkAuth =
   (): AppThunk<Promise<void>> =>
-    async (dispatch, _getState, api: AxiosInstance): Promise<void> => {
-      try {
+  async (dispatch, _getState, api: AxiosInstance): Promise<void> => {
+    try {
       type AuthInfo = { email?: string; token?: string };
       const response = await api.get<AuthInfo>('/login');
       if (response.status === 200) {
@@ -284,17 +294,17 @@ export const checkAuth =
         dispatch(setAuthorizationStatus('AUTH'));
         return;
       }
-      } catch (err) {
+    } catch (err) {
       // fallthrough to NO_AUTH
-      }
-      dispatch(setAuthorizationStatus('NO_AUTH'));
-    };
+    }
+    dispatch(setAuthorizationStatus('NO_AUTH'));
+  };
 
 export const login =
   (email: string, password: string): AppThunk<Promise<boolean>> =>
-    async (dispatch, _getState, api: AxiosInstance): Promise<boolean> => {
-      dispatch(setError(null));
-      try {
+  async (dispatch, _getState, api: AxiosInstance): Promise<boolean> => {
+    dispatch(setError(null));
+    try {
       type AuthInfo = { email?: string; token?: string };
       const response = await api.post<AuthInfo>('/login', { email, password });
       if (response.status >= 200 && response.status < 300) {
@@ -310,60 +320,60 @@ export const login =
         dispatch(setAuthorizationStatus('AUTH'));
         return true;
       }
-      } catch (errUnknown) {
-        const err = errUnknown as {
+    } catch (errUnknown) {
+      const err = errUnknown as {
         response?: { status?: number; data?: unknown };
       };
-        const status = err.response?.status ?? null;
-        const dataUnknown = err.response?.data;
-        if (status === 400) {
-          let message = 'Bad request';
-          if (typeof dataUnknown === 'object' && dataUnknown !== null) {
-            const obj = dataUnknown as Record<string, unknown>;
-            if (Array.isArray(obj.details) && obj.details.length > 0) {
-              const parts: string[] = [];
-              for (const d of obj.details as unknown[]) {
-                if (typeof d === 'object' && d !== null) {
-                  const item = d as Record<string, unknown>;
-                  if (Array.isArray(item.messages)) {
-                    const msgs = (item.messages as unknown[]).filter(
-                      (m): m is string => typeof m === 'string'
-                    );
-                    if (msgs.length) {
-                      parts.push(msgs.join(', '));
-                    }
-                  } else if (typeof item.message === 'string') {
-                    parts.push(item.message);
-                  }
-                }
-              }
-              if (parts.length > 0) {
-                message = parts.join('; ');
-              }
-            } else if (typeof obj.message === 'string') {
-              message = obj.message;
-            } else if (typeof obj.error === 'string') {
-              message = obj.error;
-            }
-          }
-          dispatch(setError(message));
-          return false;
-        }
+      const status = err.response?.status ?? null;
+      const dataUnknown = err.response?.data;
+      if (status === 400) {
+        let message = 'Bad request';
         if (typeof dataUnknown === 'object' && dataUnknown !== null) {
           const obj = dataUnknown as Record<string, unknown>;
-          if (typeof obj.message === 'string') {
-            dispatch(setError(obj.message));
-            return false;
-          }
-          if (typeof obj.error === 'string') {
-            dispatch(setError(obj.error));
-            return false;
+          if (Array.isArray(obj.details) && obj.details.length > 0) {
+            const parts: string[] = [];
+            for (const d of obj.details as unknown[]) {
+              if (typeof d === 'object' && d !== null) {
+                const item = d as Record<string, unknown>;
+                if (Array.isArray(item.messages)) {
+                  const msgs = (item.messages as unknown[]).filter(
+                    (m): m is string => typeof m === 'string'
+                  );
+                  if (msgs.length) {
+                    parts.push(msgs.join(', '));
+                  }
+                } else if (typeof item.message === 'string') {
+                  parts.push(item.message);
+                }
+              }
+            }
+            if (parts.length > 0) {
+              message = parts.join('; ');
+            }
+          } else if (typeof obj.message === 'string') {
+            message = obj.message;
+          } else if (typeof obj.error === 'string') {
+            message = obj.error;
           }
         }
-        dispatch(setError('Login failed. Try again later.'));
+        dispatch(setError(message));
         return false;
       }
+      if (typeof dataUnknown === 'object' && dataUnknown !== null) {
+        const obj = dataUnknown as Record<string, unknown>;
+        if (typeof obj.message === 'string') {
+          dispatch(setError(obj.message));
+          return false;
+        }
+        if (typeof obj.error === 'string') {
+          dispatch(setError(obj.error));
+          return false;
+        }
+      }
+      dispatch(setError('Login failed. Try again later.'));
       return false;
-    };
+    }
+    return false;
+  };
 
 export default slice.reducer;
