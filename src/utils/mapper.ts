@@ -149,47 +149,47 @@ export const adaptOffer = (o: ApiOffer): Offer => {
   const hostSrc = o.host ?? o.user;
   const host = hostSrc
     ? {
-        name: toString(hostSrc.name ?? hostSrc.login, ''),
-        avatarUrl:
+      name: toString(hostSrc.name ?? hostSrc.login, ''),
+      avatarUrl:
           toString(
             hostSrc.avatar_url ?? hostSrc.avatarUrl ?? hostSrc.avatar,
             ''
           ) || undefined,
-        isPro: Boolean(hostSrc.is_pro ?? hostSrc.isPro ?? false),
-      }
+      isPro: Boolean(hostSrc.is_pro ?? hostSrc.isPro ?? false),
+    }
     : undefined;
 
   const citySrc = o.city;
   const city = citySrc
     ? {
-        name: toString(citySrc.name, ''),
-        location: {
-          latitude: toNumber(
-            citySrc.location?.latitude ?? citySrc.lat ?? citySrc.location?.lat,
-            0
-          ),
-          longitude: toNumber(
-            citySrc.location?.longitude ?? citySrc.lng ?? citySrc.location?.lng,
-            0
-          ),
-          zoom: toNumber(citySrc.location?.zoom ?? citySrc.zoom, 10),
-        },
-      }
+      name: toString(citySrc.name, ''),
+      location: {
+        latitude: toNumber(
+          citySrc.location?.latitude ?? citySrc.lat ?? citySrc.location?.lat,
+          0
+        ),
+        longitude: toNumber(
+          citySrc.location?.longitude ?? citySrc.lng ?? citySrc.location?.lng,
+          0
+        ),
+        zoom: toNumber(citySrc.location?.zoom ?? citySrc.zoom, 10),
+      },
+    }
     : undefined;
 
   const locSrc = o.location ?? o.coords;
   const location = locSrc
     ? {
-        latitude: toNumber(
-          locSrc.latitude ?? locSrc.lat ?? locSrc.location?.latitude,
-          0
-        ),
-        longitude: toNumber(
-          locSrc.longitude ?? locSrc.lng ?? locSrc.location?.longitude,
-          0
-        ),
-        zoom: toNumber(locSrc.zoom ?? locSrc.location?.zoom, 10),
-      }
+      latitude: toNumber(
+        locSrc.latitude ?? locSrc.lat ?? locSrc.location?.latitude,
+        0
+      ),
+      longitude: toNumber(
+        locSrc.longitude ?? locSrc.lng ?? locSrc.location?.longitude,
+        0
+      ),
+      zoom: toNumber(locSrc.zoom ?? locSrc.location?.zoom, 10),
+    }
     : undefined;
 
   const images = Array.isArray(o.images)
