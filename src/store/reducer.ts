@@ -1,5 +1,7 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { AxiosInstance } from 'axios';
+import { adaptOffer } from '../utils/mapper';
+import type { ApiOffer } from '../utils/mapper';
 import type { AppThunk } from './index';
 
 type Place = {
@@ -159,9 +161,12 @@ export const fetchOffers =
     async (dispatch, _getState, api: AxiosInstance): Promise<void> => {
       dispatch(setLoading(true));
       dispatch(setError(null));
+
       try {
         const response = await api.get('/offers');
-        dispatch(setOffers(response.data as Place[]));
+        const data = response.data as unknown[];
+        const normalized = data.map((d) => adaptOffer(d as ApiOffer));
+        dispatch(setOffers(normalized));
       } catch (errUnknown) {
         let userMessage = 'Server is unavailable. Please try again later.';
 
@@ -194,9 +199,14 @@ export const fetchOfferDetails =
           api.get(`/offers/${id}/nearby`),
         ]);
 
-        dispatch(setCurrentOffer(offerRes.data as Place));
+        const offer = adaptOffer(offerRes.data as ApiOffer);
+        const nearby = (nearbyRes.data as unknown[]).map((d) =>
+          adaptOffer(d as ApiOffer)
+        );
+
+        dispatch(setCurrentOffer(offer));
         dispatch(setComments(commentsRes.data as CommentItem[]));
-        dispatch(setNearbyOffers(nearbyRes.data as Place[]));
+        dispatch(setNearbyOffers(nearby));
       } catch (errUnknown) {
         const err = errUnknown as { response?: { status?: number } };
         const status = err.response?.status ?? null;
@@ -261,7 +271,7 @@ export const toggleFavorite =
       try {
         const response = await api.post(`/favorite/${offerId}/${status}`);
         if (response.status >= 200 && response.status < 300) {
-          const updated = response.data as Place;
+          const updated = adaptOffer(response.data as ApiOffer);
           dispatch(updateOffer(updated));
           return true;
         }

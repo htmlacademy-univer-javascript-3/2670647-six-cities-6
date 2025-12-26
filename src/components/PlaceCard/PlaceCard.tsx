@@ -64,7 +64,7 @@ const PlaceCard: React.FC<Props> = ({
         <Link to={`/offer/${id}`}>
           <img
             className="place-card__image"
-            src={previewImage ?? image ?? 'img/room.jpg'}
+            src={previewImage ?? image ?? '/img/placeholder.svg'}
             width={260}
             height={200}
             alt={title}
