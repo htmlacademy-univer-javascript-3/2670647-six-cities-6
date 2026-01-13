@@ -23,7 +23,6 @@ describe('CommentForm', () => {
         <CommentForm offerId="1" />
       </Provider>
     );
-    // select rating 5
     const radio = document.querySelector(
       'input[value="5"]'
     ) as HTMLInputElement;

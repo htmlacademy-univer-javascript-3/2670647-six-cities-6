@@ -11,7 +11,6 @@ if (!rootElement) {
 }
 const root = ReactDOM.createRoot(rootElement);
 
-// Check auth first so PrivateRoute and Header know the status, then fetch offers
 store.dispatch(checkAuth());
 store.dispatch(fetchOffers());
 

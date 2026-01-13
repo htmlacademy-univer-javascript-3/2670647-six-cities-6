@@ -14,11 +14,8 @@ const Review: React.FC<ReviewProps> = ({ user, rating, text, date }) => {
     formatted = new Intl.DateTimeFormat('en-US', {
       year: 'numeric',
       month: 'long',
-      day: 'numeric',
     }).format(d);
-  } catch {
-    // leave original string if parsing fails
-  }
+  } catch {}
   return (
     <li className="reviews__item">
       <div className="reviews__user user">
@@ -36,7 +33,9 @@ const Review: React.FC<ReviewProps> = ({ user, rating, text, date }) => {
       <div className="reviews__info">
         <div className="reviews__rating rating">
           <div className="reviews__stars rating__stars">
-            <span style={{ width: `${(rating / 5) * 100}%` }}></span>
+            <span
+              style={{ width: `${(Math.round(rating) / 5) * 100}%` }}
+            ></span>
             <span className="visually-hidden">Rating</span>
           </div>
         </div>

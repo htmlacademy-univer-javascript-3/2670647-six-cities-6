@@ -6,9 +6,13 @@ import { logout } from '../../store/reducer';
 const Header = () => {
   const status = useSelector((s: RootState) => s.app.authorizationStatus);
   const email = useSelector((s: RootState) => s.app.userEmail);
-  const favoritesCount = useSelector(
-    (s: RootState) => s.app.offers.filter((o) => o.isFavorite).length
-  );
+  const favoritesCount = useSelector((s: RootState) => {
+    const favs = s.app.favorites ?? null;
+    if (Array.isArray(favs)) {
+      return favs.length;
+    }
+    return s.app.offers.filter((o) => o.isFavorite).length;
+  });
   const dispatch = useDispatch<AppDispatch>();
 
   return (

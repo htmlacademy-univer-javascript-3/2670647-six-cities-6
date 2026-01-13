@@ -1,8 +1,11 @@
 import React from 'react';
 
 export const MainEmpty: React.FC<{ city: string }> = ({ city }) => (
-  <div className="cities">
-    <div className="cities__places-container cities__places-container--empty container">
+  <div className="cities" style={{ overflowX: 'hidden' }}>
+    <div
+      className="cities__places-container cities__places-container--empty container"
+      style={{ maxWidth: '100%', boxSizing: 'border-box' }}
+    >
       <section className="cities__no-places">
         <div className="cities__status-wrapper tabs__content">
           <b className="cities__status">No places to stay available</b>
