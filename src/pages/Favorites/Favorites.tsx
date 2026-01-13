@@ -1,12 +1,17 @@
 import React from 'react';
 import Header from '../../components/Header/Header';
 import PlacesList from '../../components/PlacesList/PlacesList';
-import { useSelector } from 'react-redux';
-import { RootState } from '../../store';
+import { useSelector, useDispatch } from 'react-redux';
+import { RootState, AppDispatch } from '../../store';
+import { fetchFavorites } from '../../store/reducer';
 
 const Favorites: React.FC = () => {
-  const offers = useSelector((s: RootState) => s.app.offers);
-  const places = offers.filter((p) => p.isFavorite);
+  const dispatch = useDispatch<AppDispatch>();
+  const places = useSelector((s: RootState) => s.app.favorites ?? []);
+
+  React.useEffect(() => {
+    void dispatch(fetchFavorites());
+  }, [dispatch]);
 
   const grouped = places.reduce<Record<string, typeof places>>((acc, p) => {
     const city = p.city?.name ?? 'Unknown';
@@ -26,7 +31,7 @@ const Favorites: React.FC = () => {
           <section className="favorites">
             <h1 className="favorites__title">Saved listing</h1>
             {places.length === 0 ? (
-              <div className="favorites__status">No saved places yet.</div>
+              <div className="favorites__status">Nothing yet saved</div>
             ) : (
               <ul className="favorites__list">
                 {Object.entries(grouped).map(([city, items]) => (

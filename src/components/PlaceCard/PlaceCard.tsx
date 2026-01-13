@@ -43,7 +43,10 @@ const PlaceCard: React.FC<Props> = ({
     isPremium,
     isFavorite,
   } = place;
-  const ratingWidth = useMemo(() => `${(rating / 5) * 100}%`, [rating]);
+  const ratingWidth = useMemo(
+    () => `${(Math.round(rating) / 5) * 100}%`,
+    [rating]
+  );
 
   return (
     <article className={`${prefix}__card place-card`}>

@@ -6,6 +6,7 @@ import { useDispatch } from 'react-redux';
 import { RootState } from '../../store';
 import selectors from '../../store/selectors';
 import CitiesList from '../../components/CitiesList/CitiesList';
+import MainEmpty from '../../components/MainEmpty/MainEmpty';
 import SortOptions, {
   SortType,
 } from '../../components/SortOptions/SortOptions';
@@ -37,7 +38,6 @@ const Main = () => {
     if (sortType === 'Price: high to low') {
       return [...filtered].sort((a, b) => (b.price ?? 0) - (a.price ?? 0));
     }
-    // Top rated first
     return [...filtered].sort((a, b) => (b.rating ?? 0) - (a.rating ?? 0));
   }, [offers, sortType]);
   const placesFound = places.length;
@@ -70,6 +70,8 @@ const Main = () => {
 
               {loading ? (
                 <Spinner />
+              ) : places.length === 0 ? (
+                <MainEmpty city={activeCity} />
               ) : (
                 <PlacesList places={places} onActiveChange={setActiveId} />
               )}

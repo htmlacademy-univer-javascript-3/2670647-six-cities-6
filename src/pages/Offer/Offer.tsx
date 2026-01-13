@@ -54,6 +54,15 @@ const Offer = () => {
     date: r.date,
   }));
 
+  reviewsForList.sort((a, b) => {
+    const da = new Date(a.date).getTime() || 0;
+    const db = new Date(b.date).getTime() || 0;
+    return db - da;
+  });
+  const reviewsLimited = reviewsForList.slice(0, 10);
+
+  const mapPlaces = [...nearby.filter((p) => p.id !== offer.id), offer];
+
   return (
     <div className="page">
       <Header />
@@ -91,20 +100,28 @@ const Offer = () => {
               </div>
               <div className="offer__rating rating">
                 <div className="offer__stars rating__stars">
-                  <span style={{ width: '80%' }}></span>
+                  <span
+                    style={{
+                      width: `${(Math.round(offer.rating) / 5) * 100}%`,
+                    }}
+                  ></span>
                   <span className="visually-hidden">Rating</span>
                 </div>
-                <span className="offer__rating-value rating__value">4.8</span>
+                <span className="offer__rating-value rating__value">
+                  {Math.round(offer.rating)}
+                </span>
               </div>
               <ul className="offer__features">
                 <li className="offer__feature offer__feature--entire">
                   {offer.type}
                 </li>
                 <li className="offer__feature offer__feature--bedrooms">
-                  {offer.bedrooms} Bedrooms
+                  {offer.bedrooms}{' '}
+                  {offer.bedrooms === 1 ? 'Bedroom' : 'Bedrooms'}
                 </li>
                 <li className="offer__feature offer__feature--adults">
-                  Max {offer.maxAdults} adults
+                  Max {offer.maxAdults}{' '}
+                  {offer.maxAdults === 1 ? 'adult' : 'adults'}
                 </li>
               </ul>
               <div className="offer__price">
@@ -150,17 +167,18 @@ const Offer = () => {
                   <p className="offer__text">{offer.description}</p>
                 </div>
               </div>
-              <ReviewsList reviews={reviewsForList} />
+              <ReviewsList reviews={reviewsLimited} />
               {authStatus === 'AUTH' ? <CommentForm offerId={offerId} /> : null}
             </div>
           </div>
           {nearby.length > 0 ? (
             <div style={{ marginTop: '16px' }}>
               <Map
-                places={nearby}
+                places={mapPlaces}
                 cityName={offer.city?.name}
                 containerClassName="offer__map map"
                 height="400px"
+                activeOfferId={offer.id}
               />
             </div>
           ) : (

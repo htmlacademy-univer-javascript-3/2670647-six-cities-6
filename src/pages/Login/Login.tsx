@@ -1,8 +1,9 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { login } from '../../store/reducer';
 import { RootState, store } from '../../store';
 import { useNavigate } from 'react-router-dom';
+import { setCity } from '../../store/reducer';
 
 const Login = () => {
   const [email, setEmail] = useState('');
@@ -88,11 +89,35 @@ const Login = () => {
             </form>
           </section>
           <section className="locations locations--login locations--current">
-            <div className="locations__item">
-              <a className="locations__item-link" href="#">
-                <span>Amsterdam</span>
-              </a>
-            </div>
+            {(() => {
+              const CITIES = [
+                'Paris',
+                'Cologne',
+                'Brussels',
+                'Amsterdam',
+                'Hamburg',
+                'Dusseldorf',
+              ];
+              const randomCity = useMemo(
+                () => CITIES[Math.floor(Math.random() * CITIES.length)],
+                []
+              );
+              return (
+                <div className="locations__item">
+                  <a
+                    className="locations__item-link"
+                    href="#"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      dispatch(setCity(randomCity));
+                      navigate('/');
+                    }}
+                  >
+                    <span>{randomCity}</span>
+                  </a>
+                </div>
+              );
+            })()}
           </section>
         </div>
       </main>
